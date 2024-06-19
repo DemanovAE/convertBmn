@@ -1,6 +1,7 @@
 # convertBmn
 
 Converts 1 file dst format to 1 file the tree.root
+
 change path in scripts:
 1. `#SBATCH -o your_path/%A_%a.out` - log
 2. `#SBATCH -e your_path/%A_%a.err` - errors 
