@@ -9,6 +9,7 @@ change path in scripts:
 star: 
 `sbatch name_scripts.sh path_to_lists/name_list.list out_dir part_to_run`
 , where `part_to_run` from 0 to N, and N = (number of .dst `files in name_list.list`) / 999.
+
 name_scripts = `run8_convert_nica.sh` for NICA claster or = `run8_convert_hydra.sh` for hydra claster.
 
 usage example:
