@@ -11,6 +11,7 @@ star:
 , where `part_to_run` from 0 to N, and N = (number of .dst `files in name_list.list`) / 999.
 
 `name_scripts` = run8_convert_nica.sh for NICA claster
+
 `name_scripts` = run8_convert_hydra.sh for hydra claster
 
 usage example:
