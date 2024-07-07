@@ -2,9 +2,26 @@ using namespace ROOT;
 using namespace ROOT::Math;
 using namespace ROOT::RDF;
 using fourVector=LorentzVector<PtEtaPhiE4D<double>>;
-
+using VecF2D = vector<vector<float>>;
+//using RVecMap = RVec<TMap<int,double>>;
 //vector<float> -> RVecF
 //vector Int
+
+TF1 *f1_m2_400_211 = new TF1( "m2_400_211", "pol1", 0, 10 );
+TF1 *f1_sigma_400_211 = new TF1( "sigma_400_211", "pol2", 0, 10 );
+TF1 *f1_m2_400_321 = new TF1( "m2_400_321", "pol1", 0, 10 );
+TF1 *f1_sigma_400_321 = new TF1( "sigma_400_321", "pol2", 0, 10 );
+TF1 *f1_m2_400_2212 = new TF1( "m2_400_2212", "pol1", 0, 10 );
+TF1 *f1_sigma_400_2212 = new TF1( "sigma_400_2212", "pol2", 0, 10 );
+TF1 *f1_m2_400_1000010020 = new TF1( "m2_400_1000010020", "pol1", 0, 10 );
+TF1 *f1_sigma_400_1000010020 = new TF1( "sigma_400_1000010020", "pol2", 0, 10 );
+TF1 *f1_m2_700_211 = new TF1( "m2_700_211", "pol1", 0, 10 );
+TF1 *f1_sigma_700_211 = new TF1( "sigma_700_211", "pol2", 0, 10 );
+TF1 *f1_m2_700_2212 = new TF1( "m2_700_2212", "pol1", 0, 10 );
+TF1 *f1_sigma_700_2212 = new TF1( "sigma_700_2212", "pol2", 0, 10 );
+TF1 *f1_m2_700_1000010020 = new TF1( "m2_700_1000010020", "pol1", 0, 10 );
+TF1 *f1_sigma_700_1000010020 = new TF1( "sigma_700_1000010020", "pol2", 0, 10 );
+
 
 BmnFieldMap* magField{nullptr};
 
@@ -106,7 +123,7 @@ RVec<short> simCharge (const RVec<int> pdg)
   return ch;
 }
 
-vector<float> trackP(const RVec<BmnGlobalTrack> tracks)
+RVec<float> trackP(const RVec<BmnGlobalTrack> tracks)
 try {
   vector<float> momenta;
   for (auto track:tracks)
@@ -158,9 +175,9 @@ try {
   throw e;
 }
 
-vector< vector<float> > covMatrix(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
+VecF2D covMatrix(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
 try {
-  vector<vector<float>> covariance_matrix;
+  VecF2D covariance_matrix;
   for (auto& global_track : global_tracks) {
     auto idx = global_track.GetGemTrackIndex();
     auto track = tracks.at(idx);
@@ -181,9 +198,9 @@ try {
   throw e;
 }
 
-vector< vector<float> > globalTrackCovMatrix(RVec<BmnGlobalTrack> global_tracks)
+VecF2D globalTrackCovMatrix(RVec<BmnGlobalTrack> global_tracks)
 try {
-  vector<vector<float>> covariance_matrix;
+  VecF2D covariance_matrix;
   for (auto& global_track : global_tracks) {
     auto* par = global_track.GetParamFirst();
     covariance_matrix.emplace_back();
@@ -244,9 +261,10 @@ std::array<float, 3> cramerFieldSolver3x3( std::array<float, 3> field, std::arra
   throw e;
 }
 
-vector< vector<float> > magneticField(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks, RVec<CbmStsHit> sts_hits)
+
+VecF2D magneticField(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks, RVec<CbmStsHit> sts_hits)
 try {
-  vector<vector<float>> magnetic_field;
+  VecF2D magnetic_field;
   for (auto& global_track : global_tracks ) {
 
     auto idx = global_track.GetGemTrackIndex();
@@ -292,9 +310,9 @@ try {
   throw e;
 }
 
-vector<vector<float>> stsTrackParameters(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
+VecF2D stsTrackParameters(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
 try {
-  vector<vector<float>> parameters;
+  VecF2D parameters;
   for (auto& global_track : global_tracks) {
     auto idx = global_track.GetGemTrackIndex();
     auto track = tracks.at(idx);
@@ -314,9 +332,9 @@ try {
   throw e;
 }
 
-vector<vector<float>> globalTrackParameters(RVec<BmnGlobalTrack> global_tracks)
+VecF2D globalTrackParameters(RVec<BmnGlobalTrack> global_tracks)
 try {
-  vector<vector<float>> parameters;
+  VecF2D parameters;
   for (auto& global_track : global_tracks) {
     auto* par = global_track.GetParamFirst();
     parameters.emplace_back();
@@ -333,9 +351,9 @@ try {
   throw e;
 }
 
-vector<vector<float>> trParamFirst(RVec<BmnGlobalTrack> global_tracks)
+VecF2D trParamFirst(RVec<BmnGlobalTrack> global_tracks)
 try {
-  vector<vector<float>> parameters;
+  VecF2D parameters;
   for (auto& global_track : global_tracks) {
     auto* par = global_track.GetParamFirst();
     parameters.emplace_back();
@@ -351,7 +369,7 @@ try {
   std::cout << __func__ << std::endl;
   throw e;
 }
-vector<vector<float>> trParamLast(RVec<BmnGlobalTrack> global_tracks)
+VecF2D trParamLast(RVec<BmnGlobalTrack> global_tracks)
 try {
   vector<vector<float>> parameters;
   for (auto& global_track : global_tracks) {
@@ -370,9 +388,9 @@ try {
   throw e;
 }
 
-vector<vector<float>> BeamTrackParameters(RVec<BmnTrack> beam_tracks)
+VecF2D BeamTrackParameters(RVec<BmnTrack> beam_tracks)
 try {
-  vector<vector<float>> parameters;
+  VecF2D parameters;
   for (auto& beam_track : beam_tracks) {
     auto *par = beam_track.GetParamLast();
     parameters.emplace_back();
@@ -406,9 +424,9 @@ try {
   throw e;
 }
 
-vector<float> stsTrackChi2Ndf(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
+RVec<float> stsTrackChi2Ndf(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
 try {
-  vector<float> vec_chi2;
+  RVec<float> vec_chi2;
   for (auto& global_track : global_tracks) {
     auto idx = global_track.GetGemTrackIndex();
     auto track = tracks.at(idx);
@@ -424,7 +442,7 @@ try {
   throw e;
 }
 
-vector<int> stsTrackNdf(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
+RVec<int> stsTrackNdf(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
 try {
   vector<int> vec_ndf;
   for (auto& global_track : global_tracks) {
@@ -441,7 +459,7 @@ try {
   throw e;
 }
 
-vector<int> stsTrackNhits(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
+RVec<int> stsTrackNhits(RVec<BmnGlobalTrack> global_tracks, RVec<CbmStsTrack> tracks)
 try {
   vector<int> vec_ndf;
   for (auto& global_track : global_tracks) {
@@ -458,8 +476,8 @@ try {
   throw e;
 }
 
-std::vector<int> stsTrackSimPdg(ROOT::VecOps::RVec<int> sim_index, ROOT::VecOps::RVec<int> sim_pdg) try {
-  std::vector<int> pdg;
+RVec<int> stsTrackSimPdg(ROOT::VecOps::RVec<int> sim_index, ROOT::VecOps::RVec<int> sim_pdg) try {
+  vector<int> pdg;
   for( auto idx : sim_index ) {
     if( idx < 0 ) {
       pdg.push_back(-1);
@@ -490,7 +508,7 @@ try {
   throw e;
 }
 
-vector<float> beamHitStation(const RVec<BmnSiBTHit> tracks)
+RVec<float> beamHitStation(const RVec<BmnSiBTHit> tracks)
 try {
   vector<float> _station;
   for (auto track:tracks)
@@ -501,7 +519,7 @@ try {
   throw e;
 }
 
-vector<float> beamHitIndex(const RVec<BmnSiBTHit> tracks)
+RVec<float> beamHitIndex(const RVec<BmnSiBTHit> tracks)
 try {
   vector<float> _index;
   for (auto track:tracks)
@@ -785,7 +803,7 @@ try {
 
 float trigIntegral(const RVec<BmnTrigWaveDigit> trigger)
 try {
-  return (trigger.at(0)).GetIntegral();
+  return (trigger.at(0)).GetIntegral(); // 
 } catch( const std::exception& e ){
   std::cout << __func__ << std::endl;
   throw e;
@@ -819,8 +837,149 @@ try {
   throw e;
 }
 
+
+
+// m2
+RVec<float> trM2(const vector<fourVector> mTr, const RVec<double> fBeta)
+try {
+  RVec<float> trM2_;
+  for (int itr=0; itr<mTr.size(); itr++) {
+    auto p = mTr.at(itr).P();
+    auto p2 = p*p;
+    auto beta = fBeta.at(itr);
+    auto beta2 = beta*beta;
+    auto gamma2 = 1 - beta2;
+    auto m2 = beta > -990. ? p2 / beta2 * gamma2 : -999.0;
+    trM2_.push_back(m2);
+  }
+  return trM2_;
+} catch( const std::exception& e ){
+  std::cout << __func__ << std::endl;
+  throw e;
+}
+// nSigma 211 TOF-400
+RVec<float> nSigmaM2Tof400_211(const vector<fourVector> mTr, const RVec<float> mTrM2)
+try {
+  RVec<float> nSigma;
+  for (int itr=0; itr<mTr.size(); itr++) {
+    auto p = abs(mTr.at(itr).P());
+    auto _m2 = mTrM2.at(itr);
+    auto mean = f1_m2_400_211->Eval(p);
+    auto sigma = f1_sigma_400_211->Eval(p);
+    auto _nsigma = _m2!=-999.0 ? (_m2 - mean) / sigma : -999.0;
+    nSigma.push_back(_nsigma);
+  }
+  return nSigma;
+} catch( const std::exception& e ){
+  std::cout << __func__ << std::endl;
+  throw e;
+}
+// nSigma 2212 TOF-400
+RVec<float> nSigmaM2Tof400_2212(const vector<fourVector> mTr, const RVec<float> mTrM2)
+try {
+  RVec<float> nSigma;
+  for (int itr=0; itr<mTr.size(); itr++) {
+    auto p = abs(mTr.at(itr).P());
+    auto _m2 = mTrM2.at(itr);
+    auto mean = f1_m2_400_2212->Eval(p);
+    auto sigma = f1_sigma_400_2212->Eval(p);
+    auto _nsigma = _m2!=-999.0 ? (_m2 - mean) / sigma : -999.0;
+    nSigma.push_back(_nsigma);
+  }
+  return nSigma;
+} catch( const std::exception& e ){
+  std::cout << __func__ << std::endl;
+  throw e;
+}
+// nSigma 321 TOF-400
+RVec<float> nSigmaM2Tof400_321(const vector<fourVector> mTr, const RVec<float> mTrM2)
+try {
+  RVec<float> nSigma;
+  for (int itr=0; itr<mTr.size(); itr++) {
+    auto p = abs(mTr.at(itr).P());
+    auto _m2 = mTrM2.at(itr);
+    auto mean = f1_m2_400_321->Eval(p);
+    auto sigma = f1_sigma_400_321->Eval(p);
+    auto _nsigma = _m2!=-999.0 ? (_m2 - mean) / sigma : -999.0;
+    nSigma.push_back(_nsigma);
+  }
+  return nSigma;
+} catch( const std::exception& e ){
+  std::cout << __func__ << std::endl;
+  throw e;
+}
+// nSigma 1000010020 TOF-400
+RVec<float> nSigmaM2Tof400_1000010020(const vector<fourVector> mTr, const RVec<float> mTrM2)
+try {
+  RVec<float> nSigma;
+  for (int itr=0; itr<mTr.size(); itr++) {
+    auto p = abs(mTr.at(itr).P());
+    auto _m2 = mTrM2.at(itr);
+    auto mean = f1_m2_400_1000010020->Eval(p);
+    auto sigma = f1_sigma_400_1000010020->Eval(p);
+    auto _nsigma = _m2!=-999.0 ? (_m2 - mean) / sigma : -999.0;
+    nSigma.push_back(_nsigma);
+  }
+  return nSigma;
+} catch( const std::exception& e ){
+  std::cout << __func__ << std::endl;
+  throw e;
+}
+// nSigma 211 TOF-700
+RVec<float> nSigmaM2Tof700_211(const vector<fourVector> mTr, const RVec<float> mTrM2)
+try {
+  RVec<float> nSigma;
+  for (int itr=0; itr<mTr.size(); itr++) {
+    auto p = abs(mTr.at(itr).P());
+    auto _m2 = mTrM2.at(itr);
+    auto mean = f1_m2_700_211->Eval(p);
+    auto sigma = f1_sigma_700_211->Eval(p);
+    auto _nsigma = _m2!=-999.0 ? (_m2 - mean) / sigma : -999.0;
+    nSigma.push_back(_nsigma);
+  }
+  return nSigma;
+} catch( const std::exception& e ){
+  std::cout << __func__ << std::endl;
+  throw e;
+}
+// nSigma 2212 TOF-700
+RVec<float> nSigmaM2Tof700_2212(const vector<fourVector> mTr, const RVec<float> mTrM2)
+try {
+  RVec<float> nSigma;
+  for (int itr=0; itr<mTr.size(); itr++) {
+    auto p = abs(mTr.at(itr).P());
+    auto _m2 = mTrM2.at(itr);
+    auto mean = f1_m2_700_2212->Eval(p);
+    auto sigma = f1_sigma_700_2212->Eval(p);
+    auto _nsigma = _m2!=-999.0 ? (_m2 - mean) / sigma : -999.0;
+    nSigma.push_back(_nsigma);
+  }
+  return nSigma;
+} catch( const std::exception& e ){
+  std::cout << __func__ << std::endl;
+  throw e;
+}
+// nSigma 1000010020 TOF-700
+RVec<float> nSigmaM2Tof700_1000010020(const vector<fourVector> mTr, const RVec<float> mTrM2)
+try {
+  RVec<float> nSigma;
+  for (int itr=0; itr<mTr.size(); itr++) {
+    auto p = abs(mTr.at(itr).P());
+    auto _m2 = mTrM2.at(itr);
+    auto mean = f1_m2_700_1000010020->Eval(p);
+    auto sigma = f1_sigma_700_1000010020->Eval(p);
+    auto _nsigma = _m2!=-999.0 ? (_m2 - mean) / sigma : -999.0;
+    nSigma.push_back(_nsigma);
+  }
+  return nSigma;
+} catch( const std::exception& e ){
+  std::cout << __func__ << std::endl;
+  throw e;
+}
+
 void convertBmn_run8(string inReco="data/run8/rec.root", string inDigi="data/run8/digi.root", std::string fileOut = "out.tree.root")
 {
+  
   TChain *chainRec=makeChain(inReco, "bmndata");
   TChain *chainDigi=makeChain(inDigi, "bmndata");
   chainRec->AddFriend(chainDigi);
@@ -860,23 +1019,27 @@ void convertBmn_run8(string inReco="data/run8/rec.root", string inDigi="data/run
     cout << "ERROR: could not open ROOT file with geometry: " + geoFileName << endl;
     exit(-4);
   }
-
+  
   UniRun* pCurrentRun = UniRun::GetRun(run_header->GetPeriodNumber(), run_header->GetRunNumber());
   if (pCurrentRun == 0)
     exit(-6);
+  
   Double_t* field_voltage = pCurrentRun->GetFieldVoltage();
   if (field_voltage == NULL) {
     cout << "ERROR: no field voltage was found for run " << run_header->GetPeriodNumber() << ":" <<  run_header->GetRunNumber() << endl;
     exit(-7);
   }
-  Double_t map_current = 55.87;
+
+  Double_t map_current = 112.0;// run7 = 55.87; run8 =112.0
   Double_t fieldScale = 0.;
   if (*field_voltage < 10) {
     fieldScale = 0;
   } else
     fieldScale = (*field_voltage) / map_current;
 
-  magField = new BmnNewFieldMap("field_sp41v5_ascii_Extrap.root");
+  //magField = new BmnNewFieldMap("field_sp41v5_ascii_Extrap.root");
+  //FieldMap_1900_extrap_noPed
+  magField = new BmnNewFieldMap("FieldMap_1900_extrap_noPed.root");
   magField->SetScale(fieldScale);
   magField->Init();
 
@@ -884,11 +1047,66 @@ void convertBmn_run8(string inReco="data/run8/rec.root", string inDigi="data/run
   auto hodoModPos=modulePos(geoFileName.Data(),"hodo");
   auto fhcalModPos=modulePos(geoFileName.Data(),"fhcal");
   
-  //TTreeReader myReader("bmndata",inReco);
-  //TTreeReaderArray<Double_t> BmnBeamTrackX(myReader,"BmnBeamTrack.fParamFirst.fX");
+  //pion TOF-400
+  //TF1 *f1_m2_400_211 = new TF1( "m2_400_211", "pol1", 0, 10 );
+  f1_m2_400_211->SetParameter( 0, 0.03911 );
+  f1_m2_400_211->SetParameter( 1, -0.02269 );
+  //TF1 *f1_sigma_400_211 = new TF1( "sigma_400_211", "pol2", 0, 10 );
+  f1_sigma_400_211->SetParameter( 0, 0.04135 );
+  f1_sigma_400_211->SetParameter( 1, -0.03773 );
+  f1_sigma_400_211->SetParameter( 2, 0.02134 );
+  //kaon TOF-400
+  //TF1 *f1_m2_400_321 = new TF1( "m2_400_321", "pol1", 0, 10 );
+  f1_m2_400_321->SetParameter( 0, 0.2181 );
+  f1_m2_400_321->SetParameter( 1, 0.001171 );
+  //TF1 *f1_sigma_400_321 = new TF1( "sigma_400_321", "pol2", 0, 10 );
+  f1_sigma_400_321->SetParameter( 0, 0.2596 );
+  f1_sigma_400_321->SetParameter( 1, -0.2067 );
+  f1_sigma_400_321->SetParameter( 2, 0.06465 );
+  //proton TOF-400
+  //TF1 *f1_m2_400_2212 = new TF1( "m2_400_2212", "pol1", 0, 10 );
+  f1_m2_400_2212->SetParameter( 0, 0.9461 );
+  f1_m2_400_2212->SetParameter( 1, -0.02658 );
+  //TF1 *f1_sigma_400_2212 = new TF1( "sigma_400_2212", "pol2", 0, 10 );
+  f1_sigma_400_2212->SetParameter( 0, 0.08764 );
+  f1_sigma_400_2212->SetParameter( 1, -0.02868 );
+  f1_sigma_400_2212->SetParameter( 2, 0.01334 );
+  //d/He4 TOF-400
+  //TF1 *f1_m2_400_1000010020 = new TF1( "m2_400_1000010020", "pol1", 0, 10 );
+  f1_m2_400_1000010020->SetParameter( 0, 3.684 );
+  f1_m2_400_1000010020->SetParameter( 1, -0.02706 );
+  //TF1 *f1_sigma_400_1000010020 = new TF1( "sigma_400_1000010020", "pol2", 0, 10 );
+  f1_sigma_400_1000010020->SetParameter( 0, 0.3756 );
+  f1_sigma_400_1000010020->SetParameter( 1, -0.1047 );
+  f1_sigma_400_1000010020->SetParameter( 2, 0.02066 );
+  // TOF-700
+  //pion TOF-700
+  //TF1 *f1_m2_700_211 = new TF1( "m2_700_211", "pol1", 0, 10 );
+  f1_m2_700_211->SetParameter( 0, -0.07376 );
+  f1_m2_700_211->SetParameter( 1, 0.08399 );
+  //TF1 *f1_sigma_700_211 = new TF1( "sigma_700_211", "pol2", 0, 10 );
+  f1_sigma_700_211->SetParameter( 0, 0.01582 );
+  f1_sigma_700_211->SetParameter( 1, -0.01641 );
+  f1_sigma_700_211->SetParameter( 2, 0.03549 );
+  //proton TOF-700
+  //TF1 *f1_m2_700_2212 = new TF1( "m2_700_2212", "pol1", 0, 10 );
+  f1_m2_700_2212->SetParameter( 0, 0.919 );
+  f1_m2_700_2212->SetParameter( 1, 0.0007007 );
+  //TF1 *f1_sigma_700_2212 = new TF1( "sigma_700_2212", "pol2", 0, 10 );
+  f1_sigma_700_2212->SetParameter( 0, 0.01756 );
+  f1_sigma_700_2212->SetParameter( 1, 0.02298 );
+  f1_sigma_700_2212->SetParameter( 2, 0.01183 );
+  //d/He4 TOF-700
+  //TF1 *f1_m2_700_1000010020 = new TF1( "m2_700_1000010020", "pol1", 0, 10 );
+  f1_m2_700_1000010020->SetParameter( 0, 3.692 );
+  f1_m2_700_1000010020->SetParameter( 1, -0.0268 );
+  //TF1 *f1_sigma_700_1000010020 = new TF1( "sigma_700_1000010020", "pol2", 0, 10 );
+  f1_sigma_700_1000010020->SetParameter( 0, 0.2818 );
+  f1_sigma_700_1000010020->SetParameter( 1, -0.111 );
+  f1_sigma_700_1000010020->SetParameter( 2, 0.03891 );
 
   auto dd=d
-//    .Range(0,1000)
+    //.Range(1000,1010)
     .Define("runId",[run_id](){ return run_id; }, {} )
     .Define("evtId","DstEventHeader.fEventId")
     .Define("triggerMapBR","BmnTrigInfo.fInputsBR")
@@ -966,6 +1184,16 @@ void convertBmn_run8(string inReco="data/run8/rec.root", string inDigi="data/run
     .Define("stsTrackChi2Ndf", stsTrackChi2Ndf, { "BmnGlobalTrack", "StsVector" })
     .Define("stsTrackNdf", stsTrackNdf, { "BmnGlobalTrack", "StsVector" })
     .Define("stsTrackNhits", stsTrackNhits, { "BmnGlobalTrack", "StsVector" })
+    //nSigma from TOF-400 and TOF-700
+    .Define("trM2Tof400",trM2,{"trMom","trBetaTof400"})
+    .Define("trM2Tof700",trM2,{"trMom","trBetaTof700"})
+    .Define("nSigmaM2Tof400_211", nSigmaM2Tof400_211, {"trMom","trM2Tof400"})
+    .Define("nSigmaM2Tof400_321", nSigmaM2Tof400_321, {"trMom","trM2Tof400"})
+    .Define("nSigmaM2Tof400_2212",nSigmaM2Tof400_2212,{"trMom","trM2Tof400"})
+    .Define("nSigmaM2Tof400_1000010020",nSigmaM2Tof400_1000010020,{"trMom","trM2Tof400"})
+    .Define("nSigmaM2Tof700_211", nSigmaM2Tof700_211, {"trMom","trM2Tof700"})
+    .Define("nSigmaM2Tof700_2212",nSigmaM2Tof700_2212,{"trMom","trM2Tof700"})
+    .Define("nSigmaM2Tof700_1000010020",nSigmaM2Tof700_1000010020,{"trMom","trM2Tof700"})
 
     .Define("beamHitXYZ", beamHitXYZ, { "BmnSiBTHit" })
     .Define("beamHitStation", beamHitStation, { "BmnSiBTHit" })
