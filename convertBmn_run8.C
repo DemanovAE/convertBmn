@@ -1105,8 +1105,10 @@ void convertBmn_run8(string inReco="data/run8/rec.root", string inDigi="data/run
   f1_sigma_700_1000010020->SetParameter( 1, -0.111 );
   f1_sigma_700_1000010020->SetParameter( 2, 0.03891 );
 
+
+
   auto dd=d
-    //.Range(1000,1010)
+    //.Range(1000,1100)
     .Define("runId",[run_id](){ return run_id; }, {} )
     .Define("evtId","DstEventHeader.fEventId")
     .Define("triggerMapBR","BmnTrigInfo.fInputsBR")
